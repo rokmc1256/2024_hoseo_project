@@ -8,6 +8,7 @@ function App() {
       <div>환영합니다</div>
       <div>테스트 1</div>
       <div>테스트 2</div>
+      <div>테스트 3</div>
     </div>
   );
 }
