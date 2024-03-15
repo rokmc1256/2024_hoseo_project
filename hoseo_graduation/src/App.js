@@ -10,6 +10,7 @@ function App() {
       <div>윤한</div>
       <div>2번째 페이지 수정</div>
       <div>민석</div>
+      <div>명현</div>
     </div>
   );
 }
