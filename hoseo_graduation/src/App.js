@@ -11,6 +11,7 @@ function App() {
       <div>2번째 페이지 수정</div>
       <div>민석</div>
       <div>명현</div>
+      <div>윤한2</div>
     </div>
   );
 }
