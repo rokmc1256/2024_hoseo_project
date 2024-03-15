@@ -8,6 +8,8 @@ function App() {
       <div>환영합니다</div>
       <div>리액트 페이지 수정</div>
       <div>윤한</div>
+      <div>2번째 페이지 수정</div>
+      <div>민석</div>
     </div>
   );
 }
