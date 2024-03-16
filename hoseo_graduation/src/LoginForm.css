@@ -2,7 +2,7 @@
 
 .login_page_background {
     width: 100%;
-    height: 92.3vh;
+    max-height: 733px;
     background-color: #121212;
     display: flex;
     justify-content: center;
