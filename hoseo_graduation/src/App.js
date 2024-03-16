@@ -1,10 +1,11 @@
 import './App.css';
 import { ReactComponent as MyLogo } from "./EasyLogo2.svg";
-
+import LoginForm from './loginForm.js';
 function App() {
   return (
     <div className="App">
       <Navbar />
+      <LoginForm>
       <div>리액트로 만든 웹 페이지임</div>
       <div>환영합니다</div>
       <div>리액트 페이지 수정</div>
@@ -13,6 +14,8 @@ function App() {
       <div>민석</div>
       <div>명현</div>
       <div>윤한2</div>
+      </LoginForm>
+      
     </div>
   );
 }
