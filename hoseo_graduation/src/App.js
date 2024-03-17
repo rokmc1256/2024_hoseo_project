@@ -1,26 +1,22 @@
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import './App.css';
 import { ReactComponent as MyLogo } from "./EasyLogo2.svg";
+import RegisterForm from './registerForm.js';
 import LoginForm from './loginForm.js';
 function App() {
   return (
     <div className="App">
       <Navbar />
-      <LoginForm>
-      <div>리액트로 만든 웹 페이지임</div>
-      <div>환영합니다</div>
-      <div>리액트 페이지 수정</div>
-      <div>윤한</div>
-      <div>2번째 페이지 수정</div>
-      <div>민석</div>
-      <div>명현</div>
-      <div>윤한2</div>
-      </LoginForm>
-      
+      <Routes>
+        <Route path='/login' element={<LoginForm />}/>
+        <Route path='/register' element={<RegisterForm />}/>
+      </Routes>  
     </div>
   );
 }
 
 function Navbar() {
+  let navigate = useNavigate();
   return (
     <div className='navbar'>
         <div className='navbar_inside navbar_inside1'>
@@ -30,11 +26,14 @@ function Navbar() {
           </div>
         </div>
         <div className='navbar_inside navbar_inside2'>
-          <div>
+          <div className='mypage'>
             <span>마이페이지</span>
           </div>
-          <div>
+          <div onClick={() => {navigate('/login')}} className='login'>
             <span>로그인</span>
+          </div>
+          <div onClick={() => {navigate('/register')}} className='register'>
+            <span>회원가입</span>
           </div>
           <div className='inputspace'>
             <input type ='text' placeholder='검색'></input>
