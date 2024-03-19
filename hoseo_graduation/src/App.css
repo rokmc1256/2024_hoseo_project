@@ -9,7 +9,7 @@
   height: 70px;
   background-color: #202124;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 .navbar span {
@@ -23,10 +23,10 @@
   padding-left: 5px;
   display: flex;
   align-items: center;
-  margin-left: 220px;
+  
 }
 .navbar_inside1 span {
-  font-size: 28px;
+  font-size: 1.7em;
   padding-left: 15px;
   font-family: "Noto Sans KR", sans-serif;
 }
@@ -35,7 +35,7 @@
   display: flex;
   align-items: center;
   font-family: "Noto Sans KR", sans-serif;
-  margin-right: 220px;
+  
 }
 .navbar_inside2 div {
   padding-left: 20px;

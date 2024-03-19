@@ -31,10 +31,10 @@ export default function RegisterForm() {
                     </div>
                     <div className='register_form_input'>
                         <div>
-                            <span>이메일</span>
+                            <span>아이디</span>
                         </div>
                         <div>
-                            <input value={email} onChange={(e) => setEmail(e.target.value)} type='email' placeholder='이메일을 입력해주세요' required></input>
+                            <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder='아이디를 입력해주세요'></input>
                         </div>
                     </div>
                     <div className='register_form_input'>
