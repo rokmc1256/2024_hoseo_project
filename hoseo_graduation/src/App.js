@@ -4,38 +4,42 @@ import { ReactComponent as MyLogo } from "./EasyLogo2.svg";
 import RegisterForm from './registerForm.js';
 import LoginForm from './loginForm.js';
 import axios from 'axios';
-
-
+import MainPage from './mainPage.js';
+import { useState } from 'react';
 
 function App() {
+  const [usernameInMypage, setUsernameInMypage] = useState('');
+
+  const checkLoggedIn = async (navigate) => {
+    try {
+      const response = await axios.get('/mypage');
+      const data = response.data;
+      if (!data) {
+        navigate('/login');
+      } else {
+        setUsernameInMypage(data.username);
+        navigate('/mypage');
+      }
+    } catch (error) {
+      console.error('오류:', error);
+    }
+  };
+
   return (
     <div className="App">
-      <Navbar />
+      <Navbar checkLoggedIn = {checkLoggedIn}/>
       <Routes>
+        <Route path='/' element={<MainPage />}/>
         <Route path='/login' element={<LoginForm />}/>
         <Route path='/register' element={<RegisterForm />}/>
-        <Route path='/mypage' element={<Mypage />}/>
+        <Route path='/mypage' element={<Mypage usernameInMypage = { usernameInMypage }/>}/>
       </Routes>  
     </div>
   );
 }
 
-function Navbar() {
+function Navbar({checkLoggedIn}) {
   let navigate = useNavigate();
-
-  const checkLoggedIn = async (navigate) => {
-    try {
-       const data = await axios.get('/mypage');
-       if(!data.data) {
-        navigate('/login')
-       } else {
-        navigate('/mypage')
-       }
-    } catch (error) {
-        console.error('오류:', error);
-    }
-  }
-
   return (
     <div className='navbar'>
         <div className='navbar_inside navbar_inside1'>
@@ -63,9 +67,9 @@ function Navbar() {
   )
 }
 
-function Mypage() {
+function Mypage({usernameInMypage}) {
   return (
-    <div>하이</div>
+    <div>{usernameInMypage} 님 안녕하세요.</div>
   ) 
 }
 
