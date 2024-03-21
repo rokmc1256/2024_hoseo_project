@@ -11,6 +11,17 @@ export default function RegisterForm() {
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+          const response = await axios.post('/register', { username, password });
+          console.log(response.data); // 서버에서 반환한 데이터 확인
+        } catch (error) {
+          console.error('회원가입 에러:', error);
+        }
+    }
+
+
     //------------------------------------------아이디 유효성 검사-------------------------------------------//
     const handleUsernameChange = (event) => {
         const value = event.target.value;
@@ -72,7 +83,7 @@ export default function RegisterForm() {
     //------------------------------------------------------------------------------------------------//
 
     return (
-        <form>
+        <form onSubmit={handleSubmit}>
             <div className='register_page_background'>
                 <div className='register_form_screen'>
                     <div className='register_form_screen_inside_top'>
