@@ -45,6 +45,7 @@
     color: white;
     font-family: "Noto Sans KR", sans-serif;
     font-size: 20px;
+    position: relative;
 }
 
 .register_form_input div {
@@ -62,6 +63,16 @@
     padding: 16px;
     color: white;
     box-sizing: border-box;
+}
+
+.register_form_input .warn_msg {
+    font-size: 0.7em;
+    color: rgb(255, 35, 35);
+}
+
+.register_form_input .input-error {
+    border-radius: 5px;
+    border: 1px solid rgb(255, 35, 35);
 }
 
 .register_btn {

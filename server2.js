@@ -47,8 +47,7 @@ passport.use(new LocalStrategy(async (입력한아이디, 입력한비번, cb) =
 
 //req.logIn 이 실행될 때 마다 같이 자동으로 실행되는 부분
 // 로그인시 세션 document를 발행해주고 document에 있는 _id를 쿠키에 적어서 보내줌
-passport.serializeUser((user, done) => {
-    console.log(user)   
+passport.serializeUser((user, done) => { 
     process.nextTick(() => { //nextTick은 비동기적으로 실행됨
       done(null, { id: user._id, username: user.username })
     })
@@ -64,7 +63,7 @@ passport.deserializeUser(async (user, done) => {
     })
 })
 
-//-----------이 밑에다가 API 개발하기 -------------------//
+//---------------------------------이 밑에다가 API 개발하기--------------------------------------//
 
 app.get('/mypage', (req, res) => {
     const data = req.user
@@ -84,3 +83,19 @@ app.post('/login', async (req, res, next) => {
     })(req, res, next)
 }) 
 
+// app.post('/register', async(req, res) => {
+//     // console.log(req.body)
+//     await db.collection('user').insertOne({
+//         username: req.body.username,
+//         password: req.body.password
+//     })
+//     res.redirect('/')
+// })
+
+app.post('/addpost', async(req, res) => {
+    // await db.collection('post').insertOne({
+    //     title: req.body.title,
+    //     content: req.body.content
+    // })
+    // res.redirect('/')
+})
