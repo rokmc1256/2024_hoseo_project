@@ -2,6 +2,7 @@ const express = require('express')
 const app = express();
 const cors = require('cors')
 const path = require('path');
+const bcrypt = require('bcrypt');
 app.use(cors());
 
 const { MongoClient, ObjectId } = require('mongodb')
@@ -33,12 +34,13 @@ new MongoClient(url).connect().then((client)=>{
   console.log(err)
 })
 
-passport.use(new LocalStrategy(async (입력한아이디, 입력한비번, cb) => {
-    let result = await db.collection('user').findOne({ username : 입력한아이디})
+passport.use(new LocalStrategy(async (enteredUsername, enteredPassword, cb) => {
+    let result = await db.collection('user').findOne({ username : enteredUsername})
     if (!result) {
       return cb(null, false, { message: '아이디 DB에 없음' })
     }
-    if (result.password == 입력한비번) {
+
+    if (await bcrypt.compare(enteredPassword, result.password)) {
       return cb(null, result)
     } else {
       return cb(null, false, { message: '비번불일치' });
@@ -63,7 +65,7 @@ passport.deserializeUser(async (user, done) => {
     })
 })
 
-//---------------------------------이 밑에다가 API 개발하기--------------------------------------//
+//---------------------------------이 밑에다가 API 구현하기--------------------------------------//
 
 app.get('/mypage', (req, res) => {
     const data = req.user
@@ -83,14 +85,32 @@ app.post('/login', async (req, res, next) => {
     })(req, res, next)
 }) 
 
-// app.post('/register', async(req, res) => {
-//     // console.log(req.body)
-//     await db.collection('user').insertOne({
-//         username: req.body.username,
-//         password: req.body.password
-//     })
-//     res.redirect('/')
-// })
+app.post('/register', async(req, res) => {
+  try {
+    const username = req.body.username;
+    console.log(username, req.body)
+    // 데이터베이스에서 입력된 사용자명을 검색
+    const existingUser = await db.collection('user').findOne({ username: username });
+
+    if (existingUser) {
+        // 사용자명이 이미 존재하는 경우
+        res.status(400).send('이미 존재하는 아이디입니다.');
+    } else {
+        // 사용자명이 존재하지 않는 경우, 비밀번호를 해싱하여 저장
+        const hashPassword = await bcrypt.hash(req.body.password, 10);
+
+        // 데이터베이스에 사용자 정보 저장
+        await db.collection('user').insertOne({
+            username: username,
+            password: hashPassword
+        });
+        res.redirect('/')
+    }
+  } catch (error) {
+    console.error('회원가입 에러:', error);
+    res.status(500).send('회원가입 중 오류가 발생했습니다.');
+  }
+})
 
 app.post('/addpost', async(req, res) => {
     // await db.collection('post').insertOne({
