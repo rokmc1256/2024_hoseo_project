@@ -1,6 +1,6 @@
 import { ReactComponent as MyLogo } from "./EasyLogo2.svg";
 import './RegisterForm.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 export default function RegisterForm() {
@@ -11,6 +11,11 @@ export default function RegisterForm() {
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
     const [formValid, setFormValid] = useState(false);
+    const usernameInputRef = useRef(null);
+
+    useEffect(() => {
+        usernameInputRef.current.focus();
+    }, []);
 
     useEffect(() => {
         if (!usernameError && !passwordError && !confirmPasswordError && 
@@ -21,17 +26,24 @@ export default function RegisterForm() {
         }
     }, [usernameError, passwordError, confirmPasswordError, username, password, confirmPassword]);
 
-    useEffect(() => {
-        validateConfirmPassword(); // 비밀번호 혹은 확인 비밀번호가 변경될 때마다 확인
+/**/useEffect(() => {
+        const validateConfirmPassword = () => {
+            if (password !== confirmPassword) {
+                setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
+            } else {
+                setConfirmPasswordError('');
+            }
+        };
+        validateConfirmPassword();
     },[password, confirmPassword])
+    
     
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-          const response = await axios.post('/register', { username, password });
-          console.log(response.data); // 서버에서 반환한 데이터 확인
+        try { 
+          await axios.post('/register', { username, password });
         } catch (error) {
-          console.error('회원가입 에러:', error);
+          alert(error.response.data);
         }
     }
 
@@ -49,7 +61,7 @@ export default function RegisterForm() {
         else if (!(value.length >= 6 && value.length <= 12)) {
             setUsernameError('아이디는 6글자 이상 12글자 이하이어야 합니다.');
         }
-        else if (!/^[A-Za-z0-9][A-Za-z0-9]*$/.test(value)) {
+        else if (!/(?=.*[A-Za-z])(?=.*\d)^[A-Za-z\d]{6,12}$/.test(value)) {
             setUsernameError('아이디는 영어와 숫자의 조합만 가능합니다');
         } else {
             setUsernameError('');
@@ -82,18 +94,11 @@ export default function RegisterForm() {
         const value = event.target.value;
         setConfirmPassword(value);
     };
-    
-    const validateConfirmPassword = () => {
-        if (password !== confirmPassword) {
-            setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
-        } else {
-            setConfirmPasswordError('');
-        }
-    };
+
     //------------------------------------------------------------------------------------------------//
 
     return (
-        <form className='register_page_background'>
+        <div className='register_page_background'>
             <div className='register_form_screen'>
                 <div className='register_form_screen_inside_top'>
                     <div className='top_logo'>
@@ -108,7 +113,11 @@ export default function RegisterForm() {
                         <span>아이디</span>
                     </div>
                     <div className={usernameError ? 'input-error' : ''}>
-                        <input value={username} onChange={handleUsernameChange} placeholder='아이디를 입력해주세요'></input>
+                        <input ref={usernameInputRef} 
+                               value={username} 
+                               onChange={handleUsernameChange} 
+                               placeholder='아이디를 입력해주세요' 
+                        />
                     </div>
                     {usernameError && <div className="warn_msg"><span>{usernameError}</span></div>}
                 </div>
@@ -117,7 +126,12 @@ export default function RegisterForm() {
                         <span>비밀번호</span>
                     </div>
                     <div className={passwordError ? 'input-error' : ''}>
-                        <input value={password} onChange={handlePasswordChange} type='password' placeholder='비밀번호를 입력해주세요' required></input>
+                        <input value={password} 
+                               onChange={handlePasswordChange} 
+                               type='password' 
+                               placeholder='비밀번호를 입력해주세요' 
+                               required 
+                        />
                     </div>
                     {passwordError && <div className="warn_msg"><span>{passwordError}</span></div>}
                 </div>
@@ -126,18 +140,24 @@ export default function RegisterForm() {
                         <span>비밀번호 확인</span>
                     </div>
                     <div className={confirmPasswordError ? 'input-error' : ''}>
-                        <input value={confirmPassword} onChange={handleConfirmPasswordChange} type='password' placeholder='비밀번호를 입력해주세요' required></input>
+                        <input value={confirmPassword} 
+                               onChange={handleConfirmPasswordChange} 
+                               type='password' 
+                               placeholder='비밀번호를 입력해주세요' 
+                               required 
+                        />
                     </div>
                     {confirmPasswordError && <div className="warn_msg"><span>{confirmPasswordError}</span></div>}
                 </div>
                 <div className='register_form_screen_inside'>
                     <button type='submit' 
                             className={formValid ? 'register_btn' : 'disabled_btn' } 
-                            disabled={!formValid}>
+                            disabled={!formValid}
+                            onClick={handleSubmit}>
                             가입하기
                     </button>
                 </div>
             </div>
-        </form>
+        </div>
     )
 }

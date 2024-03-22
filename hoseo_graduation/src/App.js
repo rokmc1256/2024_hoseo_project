@@ -39,10 +39,10 @@ function App() {
 }
 
 function Navbar({checkLoggedIn}) {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   return (
     <div className='navbar'>
-        <div className='navbar_inside navbar_inside1'>
+        <div onClick={() => navigate('/')} className='navbar_inside navbar_inside1'>
           <div><MyLogo /></div>
           <div className='homepagetitle'>
             <span>E A S Y</span>

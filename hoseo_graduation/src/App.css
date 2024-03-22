@@ -23,7 +23,7 @@
   padding-left: 5px;
   display: flex;
   align-items: center;
-  
+  cursor: pointer;
 }
 .navbar_inside1 span {
   font-size: 1.7em;
