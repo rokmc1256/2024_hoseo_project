@@ -1,6 +1,6 @@
 import { ReactComponent as MyLogo } from "./EasyLogo2.svg";
 import './RegisterForm.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export default function RegisterForm() {
@@ -10,7 +10,21 @@ export default function RegisterForm() {
     const [usernameError, setUsernameError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
+    const [formValid, setFormValid] = useState(false);
 
+    useEffect(() => {
+        if (!usernameError && !passwordError && !confirmPasswordError && 
+            username !== '' && password !== '' && confirmPassword !== '') {
+            setFormValid(true);
+        } else {
+            setFormValid(false);
+        }
+    }, [usernameError, passwordError, confirmPasswordError, username, password, confirmPassword]);
+
+    useEffect(() => {
+        validateConfirmPassword(); // 비밀번호 혹은 확인 비밀번호가 변경될 때마다 확인
+    },[password, confirmPassword])
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -20,7 +34,6 @@ export default function RegisterForm() {
           console.error('회원가입 에러:', error);
         }
     }
-
 
     //------------------------------------------아이디 유효성 검사-------------------------------------------//
     const handleUsernameChange = (event) => {
@@ -43,14 +56,12 @@ export default function RegisterForm() {
         }
     }
     //---------------------------------------------------------------------------------------------------//
-    
-
 
     //------------------------------------비밀번호 유효성 검사-------------------------------------------//
     const handlePasswordChange = (event) => {
         const value = event.target.value;
         setPassword(value);
-        validatePassword(value); // Call validation function
+        validatePassword(value);
     };
 
     const validatePassword = (value) => {
@@ -65,67 +76,68 @@ export default function RegisterForm() {
         }
     }
     //--------------------------------------------------------------------------------------------------//
-    
+
     //----------------------------------비밀번호 유효성 검사(일치 확인)-----------------------------------//
     const handleConfirmPasswordChange = (event) => {
         const value = event.target.value;
         setConfirmPassword(value);
-        validateConfirmPassword(value); // Call validation function
     };
     
-    const validateConfirmPassword = (value) => {
-        if (value !== password) {
-          setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
+    const validateConfirmPassword = () => {
+        if (password !== confirmPassword) {
+            setConfirmPasswordError('비밀번호가 일치하지 않습니다.');
         } else {
-          setConfirmPasswordError('');
+            setConfirmPasswordError('');
         }
     };
     //------------------------------------------------------------------------------------------------//
 
     return (
-        <form onSubmit={handleSubmit}>
-            <div className='register_page_background'>
-                <div className='register_form_screen'>
-                    <div className='register_form_screen_inside_top'>
-                        <div className='top_logo'>
-                            <MyLogo />
-                        </div>
-                        <div>
-                            <span>E A S Y</span>
-                        </div>
+        <form className='register_page_background'>
+            <div className='register_form_screen'>
+                <div className='register_form_screen_inside_top'>
+                    <div className='top_logo'>
+                        <MyLogo />
                     </div>
-                    <div className='register_form_input'>
-                        <div>
-                            <span>아이디</span>
-                        </div>
-                        <div className={usernameError ? 'input-error' : ''}>
-                            <input value={username} onChange={handleUsernameChange} placeholder='아이디를 입력해주세요'></input>
-                        </div>
-                        {usernameError && <div className="warn_msg"><span>{usernameError}</span></div>}
-                    </div>
-                    <div className='register_form_input'>
-                        <div>
-                            <span>비밀번호</span>
-                        </div>
-                        <div className={passwordError ? 'input-error' : ''}>
-                            <input value={password} onChange={handlePasswordChange} type='password' placeholder='비밀번호를 입력해주세요' required></input>
-                        </div>
-                        {passwordError && <div className="warn_msg"><span>{passwordError}</span></div>}
-                    </div>
-                    <div className='register_form_input'>
-                        <div>
-                            <span>비밀번호 확인</span>
-                        </div>
-                        <div className={confirmPasswordError ? 'input-error' : ''}>
-                            <input value={confirmPassword} onChange={handleConfirmPasswordChange} type='password' placeholder='비밀번호를 입력해주세요'></input>
-                        </div>
-                        {confirmPasswordError && <div className="warn_msg"><span>{confirmPasswordError}</span></div>}
-                    </div>
-                    <div className='register_form_screen_inside'>
-                        <button type='submit' className='register_btn'>가입하기</button>
+                    <div>
+                        <span>E A S Y</span>
                     </div>
                 </div>
+                <div className='register_form_input'>
+                    <div>
+                        <span>아이디</span>
+                    </div>
+                    <div className={usernameError ? 'input-error' : ''}>
+                        <input value={username} onChange={handleUsernameChange} placeholder='아이디를 입력해주세요'></input>
+                    </div>
+                    {usernameError && <div className="warn_msg"><span>{usernameError}</span></div>}
+                </div>
+                <div className='register_form_input'>
+                    <div>
+                        <span>비밀번호</span>
+                    </div>
+                    <div className={passwordError ? 'input-error' : ''}>
+                        <input value={password} onChange={handlePasswordChange} type='password' placeholder='비밀번호를 입력해주세요' required></input>
+                    </div>
+                    {passwordError && <div className="warn_msg"><span>{passwordError}</span></div>}
+                </div>
+                <div className='register_form_input'>
+                    <div>
+                        <span>비밀번호 확인</span>
+                    </div>
+                    <div className={confirmPasswordError ? 'input-error' : ''}>
+                        <input value={confirmPassword} onChange={handleConfirmPasswordChange} type='password' placeholder='비밀번호를 입력해주세요' required></input>
+                    </div>
+                    {confirmPasswordError && <div className="warn_msg"><span>{confirmPasswordError}</span></div>}
+                </div>
+                <div className='register_form_screen_inside'>
+                    <button type='submit' 
+                            className={formValid ? 'register_btn' : 'disabled_btn' } 
+                            disabled={!formValid}>
+                            가입하기
+                    </button>
+                </div>
             </div>
-        </form> 
+        </form>
     )
 }
