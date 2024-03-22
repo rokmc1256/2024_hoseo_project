@@ -42,6 +42,7 @@ export default function RegisterForm() {
         e.preventDefault();
         try { 
           await axios.post('/register', { username, password });
+          window.location.replace('/');
         } catch (error) {
           alert(error.response.data);
         }
