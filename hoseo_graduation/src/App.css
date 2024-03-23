@@ -35,8 +35,12 @@
   display: flex;
   align-items: center;
   font-family: "Noto Sans KR", sans-serif;
-  
 }
+
+.navbar_inside2 .logout {
+  cursor: pointer;
+}
+
 .navbar_inside2 div {
   padding-left: 20px;
 }
