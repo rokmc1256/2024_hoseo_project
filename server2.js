@@ -3,6 +3,7 @@ const app = express();
 const cors = require('cors')
 const path = require('path');
 const bcrypt = require('bcrypt');
+const connectDB = require('./database.js')
 app.use(cors());
 
 const { MongoClient, ObjectId } = require('mongodb')
@@ -10,6 +11,7 @@ const { MongoClient, ObjectId } = require('mongodb')
 const session = require('express-session')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
+const mongoStore = require('connect-mongo')
 
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
@@ -17,14 +19,16 @@ app.use(passport.initialize())
 app.use(session({
   secret: 'hello',
   resave : false,
-  saveUninitialized : false
+  saveUninitialized : false,
+  store: mongoStore.create({
+    mongoUrl: 'mongodb+srv://rokmc1256:hoseo19@cluster0.ljpssec.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
+    dbName: 'forum'
+  })
 }))
-
 app.use(passport.session()) 
 
 let db
-const url = 'mongodb+srv://rokmc1256:hoseo19@cluster0.ljpssec.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
-new MongoClient(url).connect().then((client)=>{
+connectDB.then((client)=>{
   console.log('DB연결성공')
   db = client.db('forum')
   app.listen(8080, function(){
@@ -57,6 +61,8 @@ passport.serializeUser((user, done) => {
 
 //유저가 보낸 쿠키를 분석해줌
 //쿠키는 유저가 서버로 요청을 보낼 때 마다 자동으로 날라감
+//세션정보가 적힌 쿠키를 가지고 있는 유저가 요청을 보낼 때 마다 실행됨(불필요한 DB 조회 발생)
+//특정 API 안에서만 실행되도록 설정하는 것이 필요
 passport.deserializeUser(async (user, done) => {
     let result = await db.collection('user').findOne({_id : new ObjectId(user.id) })
     delete result.password
@@ -76,7 +82,7 @@ app.post('/login', async (req, res, next) => {
     passport.authenticate('local', (error, user, info) => {
       if (error) return res.status(500).json(error)
       if (!user) return res.status(401).json(info.message)
-
+      console.log(user)
       //성공하면 세션만들기 시작
       req.logIn(user, (err) => {
         if (err) return next(err)
@@ -84,6 +90,24 @@ app.post('/login', async (req, res, next) => {
       })
     })(req, res, next)
 }) 
+
+app.get('/logout', async (req, res) => {
+  const session = req.session
+  try{
+    if(session){
+      await req.session.destroy((err) => {
+        if(err){
+          console.log(err)
+        } else {
+          res.redirect('/')
+        }
+      })
+    }
+  }catch(err){
+    console.log('에러: ', err)
+  }
+  console.log(req.session)
+});
 
 app.post('/register', async(req, res) => {
   try {

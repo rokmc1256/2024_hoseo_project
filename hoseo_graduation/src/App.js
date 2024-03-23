@@ -9,6 +9,7 @@ import { useState } from 'react';
 
 function App() {
   const [usernameInMypage, setUsernameInMypage] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const checkLoggedIn = async (navigate) => {
     try {
@@ -25,12 +26,22 @@ function App() {
     }
   };
 
+  const handleLogout = async () => {
+    try{
+      await axios.get('/logout');
+      setIsLoggedIn(false);
+      window.location.href ='/';
+    }catch(err){
+      alert('로그아웃 에러: ', err)
+    }
+  };
+
   return (
     <div className="App">
-      <Navbar checkLoggedIn = {checkLoggedIn}/>
+      <Navbar checkLoggedIn = {checkLoggedIn} isLoggedIn ={ isLoggedIn } handleLogout= { handleLogout }/>
       <Routes>
         <Route path='/' element={<MainPage />}/>
-        <Route path='/login' element={<LoginForm />}/>
+        <Route path='/login' element={<LoginForm onLogin={(loggedIn) => setIsLoggedIn(loggedIn)}/>}/>
         <Route path='/register' element={<RegisterForm />}/>
         <Route path='/mypage' element={<Mypage usernameInMypage = { usernameInMypage }/>}/>
       </Routes>  
@@ -38,7 +49,7 @@ function App() {
   );
 }
 
-function Navbar({checkLoggedIn}) {
+function Navbar({checkLoggedIn, isLoggedIn, handleLogout}) {
   const navigate = useNavigate();
   return (
     <div className='navbar'>
@@ -52,14 +63,20 @@ function Navbar({checkLoggedIn}) {
           <div onClick={() => checkLoggedIn(navigate)} className='mypage'>
             <span>마이페이지</span>
           </div>
-          <div onClick={() => navigate('/login')} className='login'>
+          {isLoggedIn ? (
+          <div onClick={handleLogout} className='logout'> 
+            <span>로그아웃</span>
+          </div>
+          ) : (
+          <div onClick={() => navigate('/login')} className='login'> 
             <span>로그인</span>
           </div>
+          )}
           <div onClick={() => navigate('/register')} className='register'>
             <span>회원가입</span>
           </div>
           <div className='inputspace'>
-            <input type ='text' placeholder='검색'></input>
+            <input type ='text' placeholder='검색' />
             <span class="material-symbols-outlined">search</span>
           </div>
         </div>

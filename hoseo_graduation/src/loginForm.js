@@ -1,10 +1,33 @@
 import { ReactComponent as MyLogo } from "./EasyLogo2.svg";
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import './LoginForm.css';
 
-export default function LoginForm() {
+export default function LoginForm({ onLogin }) {
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+    const usernameInputRef = useRef(null);
+    const navigate = useNavigate();
+    useEffect(() => {
+        usernameInputRef.current.focus();
+    }, []);
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        try {
+            await axios.post('/login', { username, password });
+            onLogin(true); 
+            navigate('/');
+        } catch (error) {
+            console.error('로그인 오류:', error);
+        }
+    };
+
     return (
         <div className='login_page_background'>
-            <form action="/login" method="POST" className='login_form_screen'>
+            <div className='login_form_screen'>
                 <div className='login_form_screen_inside_top'>
                     <div className='top_logo'>
                         <MyLogo />
@@ -19,9 +42,11 @@ export default function LoginForm() {
                     </div>
                     <div>
                         <input 
+                          ref={usernameInputRef}
                           placeholder='아이디를 입력해주세요' 
-                          name="username">
-                        </input>
+                          name="username"
+                          onChange={(e) => setUsername(e.target.value)}
+                        />
                     </div>
                 </div>
                 <div className='login_form_input'>
@@ -32,14 +57,15 @@ export default function LoginForm() {
                         <input 
                           type='password' 
                           placeholder='비밀번호를 입력해주세요'
-                          name="password">    
-                        </input>
+                          name="password"
+                          onChange={(e) => setPassword(e.target.value)}
+                        />
                     </div>
                 </div>
                 <div className='login_form_screen_inside'>
-                    <button type='submit' className='login_btn'>로그인</button>
+                    <button onClick={ handleSubmit } type='submit' className='login_btn'>로그인</button>
                 </div>
-            </form>
+            </div>
         </div>
     )
 }
