@@ -30,7 +30,7 @@ function App() {
 
   const checkLoggedIn = async (navigate) => {
     try {
-      const response = await axios.get('/checkLoggedIn');
+      const response = await axios.get('/mypage');
       const { loggedIn, username } = response.data;
       if (!loggedIn) {
         navigate('/login');
@@ -104,6 +104,23 @@ function Navbar({ checkLoggedIn, isLoggedIn, handleLogout }) {
 }
 
 function Mypage({ usernameInMypage }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkLoggedIn = async () => {
+      try {
+        const response = await axios.get('/checkLoggedIn');
+        const { loggedIn } = response.data;
+        if (!loggedIn) {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('오류:', error);
+      }
+    };
+
+    checkLoggedIn();
+  }, [navigate]);
   return (
     <div>{usernameInMypage} 님 안녕하세요.</div>
   )
