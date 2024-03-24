@@ -10,32 +10,32 @@ import { useState, useEffect } from 'react';
 function App() {
   const [usernameInMypage, setUsernameInMypage] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const mainCheckLoggedIn = async () => {
-    try {
-      const response = await axios.get('/checkLoggedIn');
-      const data = response.data;
-      if (data) {
-        setIsLoggedIn(true);
-        setUsernameInMypage(data.username); 
-      }
-    } catch (error) {
-      console.error('오류:', error);
-    }
-  };
-
+  
   useEffect(() => {
+    const mainCheckLoggedIn = async () => {
+      try {
+        const response = await axios.get('/checkLoggedIn');
+        const { loggedIn, username } = response.data;
+        if (loggedIn) {
+          setIsLoggedIn(true);
+          setUsernameInMypage(username); 
+        }
+      } catch (error) {
+        console.error('오류:', error);
+      }
+    };
+
     mainCheckLoggedIn();
   }, []);
 
   const checkLoggedIn = async (navigate) => {
     try {
       const response = await axios.get('/checkLoggedIn');
-      const data = response.data;
-      if (!data) {
+      const { loggedIn, username } = response.data;
+      if (!loggedIn) {
         navigate('/login');
       } else {
-        setUsernameInMypage(data.username);
+        setUsernameInMypage(username);
         navigate('/mypage');
       }
     } catch (error) {
@@ -43,12 +43,12 @@ function App() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (navigate) => {
     try {
       await axios.get('/logout');
       setIsLoggedIn(false);
       setUsernameInMypage(''); 
-      window.location.href = '/';
+      navigate('/');
     } catch (err) {
       alert('로그아웃 에러: ', err);
     }
@@ -86,7 +86,7 @@ function Navbar({ checkLoggedIn, isLoggedIn, handleLogout }) {
           <span>마이페이지</span>
         </div>
         {isLoggedIn ? (
-          <div onClick={handleLogout} className='logout'>
+          <div onClick={() => handleLogout(navigate)} className='logout'>
             <span>로그아웃</span>
           </div>
         ) : (
@@ -94,9 +94,6 @@ function Navbar({ checkLoggedIn, isLoggedIn, handleLogout }) {
               <span>로그인</span>
             </div>
           )}
-        <div onClick={() => navigate('/register')} className='register'>
-          <span>회원가입</span>
-        </div>
         <div className='inputspace'>
           <input type='text' placeholder='검색' />
           <span class="material-symbols-outlined">search</span>
@@ -108,7 +105,7 @@ function Navbar({ checkLoggedIn, isLoggedIn, handleLogout }) {
 
 function Mypage({ usernameInMypage }) {
   return (
-    <div>{usernameInMypage ? `${usernameInMypage} 님 안녕하세요.` : '로딩 중...'}</div>
+    <div>{usernameInMypage} 님 안녕하세요.</div>
   )
 }
 

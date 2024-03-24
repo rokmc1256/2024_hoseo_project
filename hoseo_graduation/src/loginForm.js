@@ -15,11 +15,10 @@ export default function LoginForm({ onLogin }) {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
         try {
             await axios.post('/login', { username, password });
             onLogin(true); 
-            navigate('/');
+            navigate('/'); //window.location.href = '/' 하면 상태변경 전 페이지를 렌더링 하게 됨(오류)
         } catch (error) {
             console.error('로그인 오류:', error);
         }
@@ -64,6 +63,7 @@ export default function LoginForm({ onLogin }) {
                 </div>
                 <div className='login_form_screen_inside'>
                     <button onClick={ handleSubmit } type='submit' className='login_btn'>로그인</button>
+                    <button onClick={ () => navigate('/register') } type='button' className='register_btn'>회원가입 하러가기</button>
                 </div>
             </div>
         </div>
