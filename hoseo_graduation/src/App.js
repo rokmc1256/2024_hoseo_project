@@ -23,7 +23,7 @@ function App() {
           setUsernameInMypage(username);
           // 로그인 상태와 사용자 이름을 localStorage에 저장
           localStorage.setItem('isLoggedIn', true);
-          localStorage.setItem('username', usernameInMypage);
+          localStorage.setItem('usernameInMypage', username);
         }
       } catch (error) {
         console.error('오류:', error);
@@ -31,7 +31,7 @@ function App() {
     };
 
     mainCheckLoggedIn();
-  });
+  }, []);
 
   const checkLoggedIn = async (navigate) => {
     try {
