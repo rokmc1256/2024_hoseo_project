@@ -39,10 +39,11 @@ export default function RegisterForm() {
     }, []);
 
     useEffect(() => {
-        const { username, password, confirmPassword, usernameError, passwordError, confirmPasswordError} = state;
+        const { username, password, confirmPassword, usernameError, passwordError, confirmPasswordError } = state;
         const isFormValid = !(username === '' || password === '' || confirmPassword === '' || usernameError || passwordError || confirmPasswordError);
         dispatch({ type : 'SET_FORM_VALID', payload: isFormValid })
-    }, [state]);
+    }, [state.username, state.password, state.confirmPassword, state.usernameError, state.passwordError, state.confirmPasswordError]);
+    
 
 /**/useEffect(() => {
         const validateConfirmPassword = () => {
@@ -53,10 +54,10 @@ export default function RegisterForm() {
             } else {
                 errors.confirmPasswordError = '';
             }
-            dispatch({type: 'SET_ERRORS' , payload: errors});
+            dispatch({type: 'SET_ERRORS', payload: errors});
         };
         validateConfirmPassword();
-    },[state.password, state.confirmPassword, state])
+    },[state.password, state.confirmPassword])
     
     
     const handleSubmit = async (e) => {

@@ -73,16 +73,19 @@ passport.deserializeUser(async (user, done) => {
 
 //---------------------------------이 밑에다가 API 구현하기--------------------------------------//
 
-app.get('/mypage', (req, res) => {
-    const data = req.user
-    res.json(data);
+app.get('/checkLoggedIn', (req, res) => {
+  if (req.user) {
+    res.json({ loggedIn: true, username: req.user.username });
+  } else {
+    res.json({ loggedIn: false });
+  }
 })
 
 app.post('/login', async (req, res, next) => {
     passport.authenticate('local', (error, user, info) => {
       if (error) return res.status(500).json(error)
       if (!user) return res.status(401).json(info.message)
-      console.log(user)
+
       //성공하면 세션만들기 시작
       req.logIn(user, (err) => {
         if (err) return next(err)
@@ -95,7 +98,7 @@ app.get('/logout', async (req, res) => {
   const session = req.session
   try{
     if(session){
-      await req.session.destroy((err) => {
+      await session.destroy((err) => {
         if(err){
           console.log(err)
         } else {
@@ -106,7 +109,6 @@ app.get('/logout', async (req, res) => {
   }catch(err){
     console.log('에러: ', err)
   }
-  console.log(req.session)
 });
 
 app.post('/register', async(req, res) => {

@@ -35,7 +35,7 @@ function App() {
 
   const checkLoggedIn = async (navigate) => {
     try {
-      const response = await axios.get('/mypage');
+      const response = await axios.get('/checkLoggedIn');
       const { loggedIn, username } = response.data;
       if (!loggedIn) {
         navigate('/login');
