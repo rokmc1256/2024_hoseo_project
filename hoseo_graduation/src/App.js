@@ -1,15 +1,14 @@
-import { Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import './App.css';
-import { ReactComponent as MyLogo } from "./EasyLogo2.svg";
-import RegisterForm from './registerForm.js';
-import LoginForm from './loginForm.js';
+import RegisterForm from './RegisterPage/RegisterForm.js';
+import LoginForm from './LoginPage/LoginForm.js';
 import axios from 'axios';
 import MainPage from './mainPage.js';
-import { useState, useEffect, useLayoutEffect } from 'react';
+import Mypage from './MyPage/MyPage.js'
+import Navbar from './Navbar/Navbar.js'
+import { useState, useEffect } from 'react';
 
 function App() {
-  const navigate = useNavigate();
-
   // 페이지가 새로고침되어도 상태가 유지되도록 localStorage에서 데이터 가져오기
   const [usernameInMypage, setUsernameInMypage] = useState(localStorage.getItem('usernameInMypage') || '');
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
@@ -32,7 +31,7 @@ function App() {
     };
 
     mainCheckLoggedIn();
-  }, []);
+  });
 
   const checkLoggedIn = async (navigate) => {
     try {
@@ -81,61 +80,6 @@ function App() {
       </Routes>
     </div>
   );
-}
-
-function Navbar({ checkLoggedIn, isLoggedIn, handleLogout }) {
-  const navigate = useNavigate();
-  return (
-    <div className='navbar'>
-      <div onClick={() => navigate('/')} className='navbar_inside navbar_inside1'>
-        <div><MyLogo /></div>
-        <div className='homepagetitle'>
-          <span>E A S Y</span>
-        </div>
-      </div>
-      <div className='navbar_inside navbar_inside2'>
-        <div onClick={() => checkLoggedIn(navigate)} className='mypage'>
-          <span>마이페이지</span>
-        </div>
-        {isLoggedIn ? (
-          <div onClick={() => handleLogout(navigate)} className='logout'>
-            <span>로그아웃</span>
-          </div>
-        ) : (
-            <div onClick={() => navigate('/login')} className='login'>
-              <span>로그인</span>
-            </div>
-          )}
-        <div className='inputspace'>
-          <input type='text' placeholder='검색' />
-          <span class="material-symbols-outlined">search</span>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function Mypage({ usernameInMypage }) {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const checkLoggedIn = async () => {
-      try {
-        const response = await axios.get('/checkLoggedIn');
-        const { loggedIn } = response.data;
-        if (!loggedIn) {
-          navigate('/login');
-        }
-      } catch (error) {
-        console.error('오류:', error);
-      }
-    };
-
-    checkLoggedIn();
-  }, [navigate]);
-  return (
-    <div>{usernameInMypage} 님 안녕하세요.</div>
-  )
 }
 
 export default App;

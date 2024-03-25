@@ -1,4 +1,4 @@
-import { ReactComponent as MyLogo } from "./EasyLogo2.svg";
+import { ReactComponent as MyLogo } from "./../EasyLogo2.svg";
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -63,7 +63,7 @@ export default function LoginForm({ onLogin }) {
                 </div>
                 <div className='login_form_screen_inside'>
                     <button onClick={ handleSubmit } type='submit' className='login_btn'>로그인</button>
-                    <button onClick={ () => navigate('/register') } type='button' className='register_btn'>회원가입 하러가기</button>
+                    <button onClick={ () => navigate('/register') } type='button' className='to_register_btn'>회원가입 하러가기</button>
                 </div>
             </div>
         </div>
