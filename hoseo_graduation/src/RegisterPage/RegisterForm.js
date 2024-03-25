@@ -1,4 +1,5 @@
 import { ReactComponent as MyLogo } from "./../EasyLogo2.svg";
+import { useNavigate } from 'react-router-dom';
 import './RegisterForm.css';
 import { useEffect, useRef, useReducer } from 'react';
 import axios from 'axios';
@@ -21,6 +22,7 @@ const formReducer = (state, action) => {
   };  
 
 export default function RegisterForm() {
+    const navigate = useNavigate();
     const initialState = {
         username: '',
         password: '',
@@ -64,8 +66,11 @@ export default function RegisterForm() {
         e.preventDefault();
         const { username, password } = state;
         try { 
-          await axios.post('/register', { username, password });
-          window.location.replace('/');
+          const response = await axios.post('/register', { username, password });
+          if (response.data.registerSuccess === true) {
+            alert('회원가입에 성공하였습니다! 로그인을 해주세요.')
+            navigate('/login')
+          }
         } catch (error) {
           alert(error.response.data);
         }

@@ -130,7 +130,7 @@ app.post('/register', async(req, res) => {
             username: username,
             password: hashPassword
         });
-        res.redirect('/')
+        res.json({registerSuccess: true})
     }
   } catch (error) {
     console.error('회원가입 에러:', error);
