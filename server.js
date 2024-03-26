@@ -48,7 +48,7 @@ new MongoClient(url).connect().then((client)=>{
 })
 
 
-const { S3Client } = require('@aws-sdk/client-s3')
+const { S3Client } = require('@aws-sdk/client-s3') //s3 이미지 업로드 초기설정
 const multer = require('multer')
 const multerS3 = require('multer-s3')
 const s3 = new S3Client({
