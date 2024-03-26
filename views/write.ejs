@@ -9,15 +9,14 @@
 <body class="grey-bg">
     
     <%- include('nav.ejs') %>
-    <form class="form-box" action="/add" method="POST">
+    <form class="form-box" action="/add" method="POST" enctype="multipart/form-data">
         <h4>글쓰기</h4>
         <input name="title">
         <!--<input name="content" type="text">-->
-        <textarea class="form-control" rows="50" cols="150" id="content"
+        <textarea class="form-control" rows="30" cols="120" id="content"
         name="content" placeholder="내용 작성"></textarea>
+        <input type = "file" name ="img1" accept="image/*" multiple>
         <button type="submit">전송</button>
     </form> 
-     
-  
   </body>
 </html>
