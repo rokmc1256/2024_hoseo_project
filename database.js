@@ -1,6 +1,7 @@
+require('dotenv').config()
 const { MongoClient } = require('mongodb');
 
-const url = 'mongodb+srv://rokmc1256:hoseo19@cluster0.ljpssec.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
+const url = process.env.DB_URL
 const connectDB = new MongoClient(url).connect()
 
 module.exports = connectDB

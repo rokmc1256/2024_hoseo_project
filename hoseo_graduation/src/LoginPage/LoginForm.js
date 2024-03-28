@@ -20,7 +20,7 @@ export default function LoginForm({ onLogin }) {
             onLogin(true); 
             navigate('/'); //window.location.href = '/' 하면 상태변경 전 페이지를 렌더링 하게 됨(오류)
         } catch (error) {
-            console.error('로그인 오류:', error);
+            alert(`로그인 오류: ${error.response.data}`);
         }
     };
 

@@ -1,186 +1,148 @@
-const punycode = require('punycode');
 const express = require('express')
-const app = express();
-const bcrpyt = require('bcrypt');
-const cors = require('cors');
+const app = express()
+const cors = require('cors')
+const path = require('path')
+const bcrypt = require('bcrypt')
+const connectDB = require('./database.js')
+require('dotenv').config()
+app.use(cors())
 
-app.use(express.static(__dirname+'/public'))
-app.set('view engine', 'ejs')
-app.use(express.json())
-app.use(express.urlencoded({extended:true}))
-app.use(cors());
+const { ObjectId } = require('mongodb')
 
 const session = require('express-session')
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
-const MongoStore = require('connect-mongo')
+const mongoStore = require('connect-mongo')
 
-
+app.use(express.json())
+app.use(express.urlencoded({extended:true}))
 app.use(passport.initialize())
 app.use(session({
-  secret: 'hello',
+  secret: process.env.SESSION_SECRET,
   resave : false,
   saveUninitialized : false,
-  cookie : {maxAge : 60 * 60 * 1000},
-
-  store : MongoStore.create({
-    mongoUrl : 'mongodb+srv://admin:mongo123@cluster0.o43budv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
-    dbName : 'forum'
-    })
-
+  store: mongoStore.create({
+    mongoUrl: process.env.DB_URL,
+    dbName: process.env.DB_NAME
+  })
 }))
-
-app.use(passport.session())
-
-const { MongoClient, ObjectId } = require('mongodb')
+app.use(passport.session()) 
 
 let db
-const url = 'mongodb+srv://admin:mongo123@cluster0.o43budv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
-new MongoClient(url).connect().then((client)=>{
-  console.log('DB연결성공')
-  db = client.db('forum')
-  app.listen(8080, function(){
-    console.log("listen 8080")
-});
+connectDB.then((client)=>{
+  console.log('데이터베이스 연결 성공')
+  db = client.db(process.env.DB_NAME)
+  app.listen(process.env.PORT, function(){
+    console.log("듣는 중..")
+})
 }).catch((err)=>{
   console.log(err)
 })
 
-app.get('/pet', function(요청, 응답){
-    응답.send(__dirname);
-});
-
-app.get('/',function(요청,응답){
-    응답.sendfile(__dirname + '/index.html');
-});
-
-app.get('/about',function(요청,응답){
-    응답.sendfile(__dirname + '/introduce.html');
-});
-
-app.get('/news',function(요청,응답){
-    db.collection('post').insertOne({title:'ㅎㅇ'})
-})
-
-app.get('/list', async (요청, 응답) =>{
-    console.log('list')
-    let result = await db.collection('post').find().toArray()
-    //console.log(result[0].title)
-    //응답.send(result[0].title)
-    응답.render('list.ejs', {글목록 : result})
-  })
-
-  app.get('/time', async (요청, 응답) =>{
-    let result = await db.collection('post').find().toArray()
-    //console.log(result[0].title)
-    //응답.send(result[0].title)
-    응답.render('time.ejs', {data : new Date()})
-  })
-
-
-app.get('/write', (요청, 응답) =>{
-    응답.render('write.ejs')
-});
-
-app.post('/add', async (요청, 응답) =>{
-    let result = 요청.body
-    console.log(result)
-    try{
-        if (result.title == ''){
-            응답.send('제목입력안함 ㅅㄱ')
-        }else{
-            await db.collection('post').insertOne({title : 요청.body.title,content:요청.body.content})
-            응답.redirect('/list')
-        }
-    }
-    catch(e){
-        console.log(e)
-        응답.status(500).send('에러발생')
-    }
-    
-});
-
-app.get('/detail/:id', async (req, res) => {
-    try{
-        let result = await db.collection('post').findOne({ _id : new ObjectId(req.params.id) })
-        console.log(1)
-        console.log(result)
-        res.render('detail.ejs', { result : result })
-    } catch(e){
-        console.log(e)
-        응답.status(404).send('이상한 url 입력함')
-    }
-  })
-
-app.get('/edit/:id', async (요청, 응답) => {
-    let result = await db.collection('post').findOne({ _id : new ObjectId(요청.params.id) })
-    응답.render('edit.ejs', {result : result})
-  })
-
-  app.put('/edit', async (요청, 응답)=>{
-    await db.collection('post').updateOne({ _id : new ObjectId(요청.body.id) },
-      {$set : { title : 요청.body.title, content : 요청.body.content }
-    })
-    응답.redirect('/list')
-  }) 
-
-
-  passport.use(new LocalStrategy(async (입력한아이디, 입력한비번, cb) => {
-    console.log(입력한아이디);
-    let result = await db.collection('user').findOne({ username : 입력한아이디})
+passport.use(new LocalStrategy(async (enteredUsername, enteredPassword, cb) => {
+    let result = await db.collection('user').findOne({ username : enteredUsername})
     if (!result) {
-      return cb(null, false, { message: '아이디 DB에 없음' })
+      return cb(null, false, { message: '존재하지 않는 아이디 입니다.' })
     }
-    if (await bcrpyt.compare(입력한비번, result.password)){
-        return cb(null, result)
-    }
-     else {
-      return cb(null, false, { message: '비번불일치' });
-    }
-  }))
 
-  passport.serializeUser((user, done) => {
-    process.nextTick(() => {
+    if (await bcrypt.compare(enteredPassword, result.password)) {
+      return cb(null, result)
+    } else {
+      return cb(null, false, { message: '비밀번호가 일치하지 않습니다.' });
+    }
+}))
+
+//req.logIn 이 실행될 때 마다 같이 자동으로 실행되는 부분
+// 로그인시 세션 document를 발행해주고 document에 있는 _id를 쿠키에 적어서 보내줌
+passport.serializeUser((user, done) => { 
+    process.nextTick(() => { //nextTick은 비동기적으로 실행됨
       done(null, { id: user._id, username: user.username })
     })
-  })
+})
 
-  passport.deserializeUser(async (user, done) => {
+//유저가 보낸 쿠키를 분석해줌
+//쿠키는 유저가 서버로 요청을 보낼 때 마다 자동으로 날라감
+//세션정보가 적힌 쿠키를 가지고 있는 유저가 요청을 보낼 때 마다 실행됨(불필요한 DB 조회 발생)
+//특정 API 안에서만 실행되도록 설정하는 것이 필요
+passport.deserializeUser(async (user, done) => {
     let result = await db.collection('user').findOne({_id : new ObjectId(user.id) })
     delete result.password
     process.nextTick(() => {
       return done(null, result)
     })
-  })
+})
 
-  app.get('/login', async (요청, 응답) => {
-    응답.render('login.ejs')
-  })
+//---------------------------------이 밑에다가 API 구현하기--------------------------------------//
 
-  app.post('/login', async (요청, 응답, next)=>{
-    passport.authenticate('local',(error, user, info)=> {
-        if(error) return 응답.status(500).json(error)
-        if(!user) return 응답.status(401).json(info.message)
-        요청.logIn(user,(err)=>{
-            if(err) return next(err)
-            응답.redirect('/')
-        })
-    })(요청, 응답, next)
+app.get('/checkLoggedIn', (req, res) => {
+  if (req.user) {
+    res.json({ loggedIn: true, username: req.user.username });
+  } else {
+    res.json({ loggedIn: false });
+  }
+})
 
-  })
+app.post('/login', async (req, res, next) => {
+    passport.authenticate('local', (error, user, info) => {
+      if (error) return res.status(500).json(error)
+      if (!user) return res.status(401).json(info.message)
 
-  app.get('/register', async (요청, 응답)=> {
-    응답.render('register.ejs')
-  })
+      //성공하면 세션만들기 시작
+      req.logIn(user, (err) => {
+        if (err) return next(err)
+        res.redirect('/')
+      })
+    })(req, res, next)
+}) 
 
-app.post('/register', async (요청, 응답)=> {
+app.get('/logout', async (req, res) => {
+  const session = req.session
+  try{
+    if(session){
+      await session.destroy((err) => {
+        if(err){
+          console.log(err)
+        } else {
+          res.redirect('/')
+        }
+      })
+    }
+  }catch(err){
+    console.log('에러: ', err)
+  }
+});
 
-    let 해시 = await bcrpyt.hash(요청.body.password, 10)
-    console.log(해시)
+app.post('/register', async(req, res) => {
+  try {
+    const username = req.body.username;
+    console.log(username, req.body)
+    // 데이터베이스에서 입력된 사용자명을 검색
+    const existingUser = await db.collection('user').findOne({ username: username });
 
-    await db.collection('user').insertOne({
-        username : 요청.body.username,
-        password : 해시
-    })
-    응답.redirect('/')
+    if (existingUser) {
+        // 사용자명이 이미 존재하는 경우
+        res.status(400).send('이미 존재하는 아이디입니다.');
+    } else {
+        // 사용자명이 존재하지 않는 경우, 비밀번호를 해싱하여 저장
+        const hashPassword = await bcrypt.hash(req.body.password, 10);
+
+        // 데이터베이스에 사용자 정보 저장
+        await db.collection('user').insertOne({
+            username: username,
+            password: hashPassword
+        });
+        res.json({registerSuccess: true})
+    }
+  } catch (error) {
+    console.error('회원가입 에러:', error);
+    res.status(500).send('회원가입 중 오류가 발생했습니다.');
+  }
+})
+
+app.post('/addpost', async(req, res) => {
+    // await db.collection('post').insertOne({
+    //     title: req.body.title,
+    //     content: req.body.content
+    // })
+    // res.redirect('/')
 })
